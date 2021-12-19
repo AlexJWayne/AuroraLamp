@@ -20,6 +20,7 @@ double speed = 1;
 
 // Magic Rainbow
 // Breathe
+// Torch
 String mode = "";
 
 void setup() {
@@ -35,6 +36,7 @@ void setup() {
 
   Particle.function("startMagicRainbow", startMagicRainbow);
   Particle.function("startBreathe", startBreathe);
+  Particle.function("startTorch", startTorch);
 
   startMagicRainbow("");
 }
@@ -62,11 +64,18 @@ int startBreathe(String arg) {
   return 0;
 }
 
+int startTorch(String arg) {
+  mode = "Torch";
+  speed = 1;
+  return 0;
+}
+
 void loop() {
   uint32_t now = millis() * speed;
 
   if (mode == "Magic Rainbow") loopMagicRainbow(now);
   if (mode == "Breathe") loopBreathe(now);
+  if (mode == "Torch") loopTorch(now);
 
   FastLED.show();
 }
@@ -95,10 +104,40 @@ void loopBreathe(uint32_t now) {
       h += y * 12;
       h += getNoise(now * 0.8, x, y) * 0.5;
       
-      uint8_t s = getNoise(now * 0.7, x, y);
       uint8_t v = beatsin8(speed * 60, 0, 255, now, -y * 15);
+      v = v < 120 ? 0 : map(v, 120, 255, 0, 255);
 
-      setLed(x, y, h, s, v);
+      setLed(x, y, h, 255, v);
+    }
+  }
+}
+
+void loopTorch(uint32_t now) {
+  for (uint8_t x = 0; x < X; x++) {
+    for (uint8_t y = 0; y < Y; y++) {
+      uint8_t h = 0;
+
+      switch (y) {
+        case 0: h = 200;  break;
+        case 1: h = 0;  break;
+        case 2: h = 0;  break;
+        case 3: h = 0;  break;
+        case 4: h = 15;  break;
+        case 5: h = 25;  break;
+        case 6: h = 15;  break;
+        case 7: h = 5;  break;
+      }
+
+      h += map(
+        getNoise(now * 3.1, x, y),
+        0, 255,
+        0, 25
+      );
+
+      uint8_t v = getNoise(now * 4.9, x, y);
+      v = map(v, 0, 255, 160, 255);
+
+      setLed(x, y, h, 255, v);
     }
   }
 }
