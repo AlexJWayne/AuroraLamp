@@ -105,7 +105,7 @@ void loopBreathe(uint32_t now) {
       h += getNoise(now * 0.8, x, y) * 0.5;
       
       uint8_t v = beatsin8(speed * 60, 0, 255, now, -y * 15);
-      v = v < 120 ? 0 : map(v, 120, 255, 0, 255);
+      v = v < 100 ? 0 : map(v, 100, 255, 0, 255);
 
       setLed(x, y, h, 255, v);
     }
